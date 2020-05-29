@@ -16,7 +16,7 @@ const appleNewPosition = () => {
 
 let apple = {
   position: appleNewPosition(),
-  power: 1
+  power: 100
 };
 
 let cmptGrow = 0;
@@ -78,7 +78,7 @@ const moveSnake = () => {
   if (snake[0][0] === apple.position[0] && snake[0][1] === apple.position[1]) {
     console.log("Eat !!");
     apple.position = appleNewPosition();
-    cmptGrow = 3;
+    cmptGrow = 100;
   }
   if (cmptGrow === 0) {
     snake.pop();
