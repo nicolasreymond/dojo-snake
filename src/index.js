@@ -1,4 +1,4 @@
-console.log("-- best snake made by epfl-dojo --");
+console.log("-- best snake.body made by epfl-dojo --");
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 
@@ -7,16 +7,21 @@ const ctx = canvas.getContext("2d");
 //
 // Aide : Gestion d'une touche de clavier
 // window.addEventListener("keydown", event => { console.log(event.key); ... }
+
 const width = 20;
 const gridElem = width * 2; // 20 cases * 20 cases
-let snake = [[9, 9], [8, 9], [7, 9]];
+//let snake.body = [[9, 9], [8, 9], [7, 9]];
 const appleNewPosition = () => {
   return [Math.floor(Math.random() * width), Math.floor(Math.random() * width)];
 };
 
+let snake = {
+  body: [[9, 9], [8, 9], [7, 9]]
+};
+
 let apple = {
   position: appleNewPosition(),
-  power: 100
+  power: 1
 };
 
 let cmptGrow = 0;
@@ -37,18 +42,22 @@ const drawMap = () => {
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, 800, 800);
   ctx.font = "20px Arial";
+};
+
+const drawScore = () => {
+  ctx.font = "20px Arial";
   ctx.fillStyle = "red";
-  ctx.fillText("Score: " + (snake.length - 3) * 100, 40, 40);
+  ctx.fillText("Score: " + (snake.body.length - 3) * 100, 40, 40);
 };
 
 const drawSnake = () => {
   ctx.fillStyle = "green";
-  for (let element of snake) {
+  for (let element of snake.body) {
     ctx.fillRect(
-      element[0] * gridElem,
-      element[1] * gridElem,
-      gridElem,
-      gridElem
+      element[0] * gridElem + 2,
+      element[1] * gridElem + 2,
+      gridElem - 4,
+      gridElem - 4
     );
   }
 };
@@ -56,32 +65,39 @@ const drawSnake = () => {
 const moveSnake = () => {
   let newHead;
   //change direction
-  if (direction === "e") {
-    newHead = [(snake[0][0] + 1) % width, snake[0][1]];
-  }
-  if (direction === "o") {
-    newHead = [(snake[0][0] - 1 + width) % width, snake[0][1]];
-  }
-  if (direction === "s") {
-    newHead = [snake[0][0], (snake[0][1] + 1) % width];
-  }
-  if (direction === "n") {
-    newHead = [snake[0][0], (snake[0][1] - 1 + width) % width];
+  switch (direction) {
+    case "e":
+      newHead = [(snake.body[0][0] + 1) % width, snake.body[0][1]];
+      break;
+    case "o":
+      newHead = [(snake.body[0][0] - 1 + width) % width, snake.body[0][1]];
+      break;
+    case "s":
+      newHead = [snake.body[0][0], (snake.body[0][1] + 1) % width];
+      break;
+    case "n":
+      newHead = [snake.body[0][0], (snake.body[0][1] - 1 + width) % width];
+      break;
+    default:
+      break;
   }
 
-  gameover = snake.find(
+  gameover = snake.body.find(
     snakeElem => snakeElem[0] === newHead[0] && snakeElem[1] === newHead[1]
   );
 
-  snake.unshift(newHead);
+  snake.body.unshift(newHead);
 
-  if (snake[0][0] === apple.position[0] && snake[0][1] === apple.position[1]) {
+  if (
+    snake.body[0][0] === apple.position[0] &&
+    snake.body[0][1] === apple.position[1]
+  ) {
     console.log("Eat !!");
     apple.position = appleNewPosition();
-    cmptGrow = 100;
+    cmptGrow = 3;
   }
   if (cmptGrow === 0) {
-    snake.pop();
+    snake.body.pop();
   } else {
     cmptGrow = cmptGrow - 1;
   }
@@ -90,16 +106,29 @@ const moveSnake = () => {
 const keyPushed = e => {
   switch (e.key) {
     case "ArrowRight":
-      direction = "e";
+      if (direction !== "o") {
+        direction = "e";
+      }
       break;
     case "ArrowLeft":
-      direction = "o";
+      if (direction !== "e") {
+        direction = "o";
+      }
       break;
     case "ArrowUp":
-      direction = "n";
+      if (direction !== "s") {
+        direction = "n";
+      }
       break;
     case "ArrowDown":
-      direction = "s";
+      if (direction !== "n") {
+        direction = "s";
+      }
+      break;
+    case "r":
+      if (direction !== "n") {
+        direction = "s";
+      }
       break;
     default:
       break;
@@ -118,6 +147,7 @@ const nextMove = () => {
   drawMap();
   drawApple();
   drawSnake();
+  drawScore();
 
   setTimeout(() => {
     if (!gameover) {
@@ -128,7 +158,7 @@ const nextMove = () => {
       ctx.textAlign = "center";
       ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
     }
-  }, 500);
+  }, 150 - snake.body.length - 3);
 };
 
 // https://developer.mozilla.org/fr/docs/Web/API/Window/requestAnimationFrame
